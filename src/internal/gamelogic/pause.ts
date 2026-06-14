@@ -1,6 +1,7 @@
 import type { GameState, PlayingState } from "./gamestate.js";
+import { AckType } from "../../internal/pubsub/subscribe.js";
 
-export function handlePause(gs: GameState, ps: PlayingState): void {
+export function handlePause(gs: GameState, ps: PlayingState): AckType {
   console.log();
   if (ps.isPaused) {
     console.log("==== Pause Detected ====");
@@ -10,4 +11,5 @@ export function handlePause(gs: GameState, ps: PlayingState): void {
     gs.resumeGame();
   }
   console.log("------------------------");
+  return AckType.Ack;
 }
