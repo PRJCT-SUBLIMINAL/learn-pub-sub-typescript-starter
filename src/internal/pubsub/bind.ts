@@ -25,7 +25,7 @@ export async function declareAndBind(
         isExclusive = true;
     };
 
-    const result = await ch.assertQueue(queueName, { durable: isDurable, autoDelete: autoDelete, exclusive: isExclusive });
+    const result = await ch.assertQueue(queueName, { durable: isDurable, autoDelete: autoDelete, exclusive: isExclusive, arguments: { "x-dead-letter-exchange": "peril_dlx" } });
 
     if (!result) throw new Error("Failed to assert queue!");
 

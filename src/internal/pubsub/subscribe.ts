@@ -13,7 +13,7 @@ export async function subscribeJSON<T>(
     queueName: string,
     key: string,
     queueType: SimpleQueueType,
-    handler: (data: T) => AckType
+    handler: (data: T) => Promise<AckType> | AckType
 ): Promise<void> {
     const [channel, queueResult] = await declareAndBind(conn, exchange, queueName, key, queueType);
 
@@ -23,7 +23,7 @@ export async function subscribeJSON<T>(
         const messageString = message.content.toString();
         const messageContent = JSON.parse(messageString);
 
-        const ackType = handler(messageContent);
+        const ackType = await handler(messageContent);
 
         // Depending on acknowledge type from enum AckType
         switch(ackType) {
