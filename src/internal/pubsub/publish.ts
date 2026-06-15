@@ -1,6 +1,5 @@
 import type { ConfirmChannel } from "amqplib";
-import { deepStrictEqual } from "assert";
-import { encode, decode } from "@msgpack/msgpack";
+import { encode } from "@msgpack/msgpack";
 
 export async function publishJSON<T>(
     ch: ConfirmChannel,

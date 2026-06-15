@@ -1,8 +1,10 @@
 import amqp from "amqplib";
 import { publishJSON } from "../internal/pubsub/publish.js";
 import { ExchangePerilDirect, ExchangePerilTopic, GameLogSlug, PauseKey } from "../internal/routing/routing.js";
-import { getInput, printServerHelp } from "../internal/gamelogic/gamelogic.js";
-import { declareAndBind, SimpleQueueType } from "../internal/pubsub/bind.js";
+import { getInput, printClientHelp, printServerHelp } from "../internal/gamelogic/gamelogic.js";
+import { SimpleQueueType } from "../internal/pubsub/bind.js";
+import { subscribeMessagePack, AckType } from "../internal/pubsub/subscribe.js";
+import { writeLog, type GameLog } from "../internal/gamelogic/logs.js";
 
 async function main() {
   const CONNECTION_STRING: string = "amqp://guest:guest@localhost:5672/";
@@ -16,7 +18,11 @@ async function main() {
   const ch = await connection.createConfirmChannel();
   publishJSON(ch, ExchangePerilDirect, PauseKey, { isPaused: true });
   
-  await declareAndBind(connection, ExchangePerilTopic, GameLogSlug, `${GameLogSlug}.*`, SimpleQueueType.Durable);
+  await subscribeMessagePack(connection, ExchangePerilTopic, GameLogSlug, `${GameLogSlug}.*`, SimpleQueueType.Durable, async (log: GameLog) => {
+    await writeLog(log);
+    printServerHelp();
+    return AckType.Ack;
+  })
 
   process.on("SIGINT", async ()=>{
     console.log("Shutting down.");
