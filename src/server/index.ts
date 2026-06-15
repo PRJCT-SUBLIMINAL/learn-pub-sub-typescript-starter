@@ -20,7 +20,6 @@ async function main() {
   
   await subscribeMessagePack(connection, ExchangePerilTopic, GameLogSlug, `${GameLogSlug}.*`, SimpleQueueType.Durable, async (log: GameLog) => {
     await writeLog(log);
-    printServerHelp();
     return AckType.Ack;
   })
 
@@ -29,6 +28,12 @@ async function main() {
     await connection.close();
     process.exit(0);
   })
+
+  // Used to run the server from a non-interactive source, like the multiserver.sh file
+  if (!process.stdin.isTTY) {
+    console.log("Non-interactive mode: skipping command input.");
+    return;
+  }
 
   printServerHelp();
 
